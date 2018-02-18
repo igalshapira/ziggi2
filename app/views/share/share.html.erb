@@ -1,0 +1,55 @@
+<%
+    content_for :title do
+%>
+<%= "זיגי - המערכת של " + @user.name %>
+<% end %>
+<script type="text/javascript">
+    university = { lat: <%= @user.semester.university.lat.to_s %>,
+	lng: <%= @user.semester.university.lng.to_s %>,
+	code: '<%= @user.semester.university.code %>' };
+    semester = { 'name': '<%= @user.semester.name %>',
+	'start': new Date('<%= @user.semester.start %>'),
+	'end': new Date('<%= @user.semester.end %>'),
+    <% if @user.semester.exams_start %>
+	'exams_start': new Date('<%= @user.semester.exams_start %>'),
+    <% end %>
+    <% if @user.semester.exams_end %>
+	'exams_end': new Date('<%= @user.semester.exams_end %>')
+    <% end %>
+    };
+<%
+	g_courses = []
+	UserCourse.find_all_by_user_id_and_group(@user.id, 0).each do |c|
+	    next unless c.course and c.course.semester_id == @user.semester_id
+	    cache = course_from_cache(c.course.number)
+	    if cache
+		g_courses.push(cache)
+	    else
+		g_courses.push({ 'number' => c.course.number, 'name' => c.course.name })
+	    end
+	end
+%>
+    var g_courses = <%= g_courses.to_json.html_safe %>;
+    var g_events = [];
+</script>
+<img src="/assets/ziggi_print_bg.png" id="print-logo"/>
+<div data-layout='{"type": "border"}' class="layout">
+    <div class="center">
+	<div id="calendar" class="loading"></div>
+    </div>
+    <div class="south">
+	<div class="container">
+	    <div id="footer">
+		<span>Ziggi © 2013</span>
+		<a link="/about" href="#">אודות</a>
+		<a link="/eula" href="#">תנאי שימוש באתר</a>
+		<a link="/wanted" href="#">דרושים</a>
+		<a href="mailto:igal.shapira@gmail.com">צור קשר</a>
+	    </div>
+	</div>
+    </div>
+</div>
+<div id="static-dialog" title="Search Results">
+    <div></div>
+</div>
+<%= google_analytics 'UA-37311958-1' %>

@@ -1,0 +1,10 @@
+<form id="syl" method="post" action="http://bgu4u.bgu.ac.il/pls/scwp/!sc.AnnualSelctedCourseDetails">
+    <input type="hidden" name="rn_course_details" value="1"/>
+    <input type="hidden" name="rn_course_department" value="<%= params[:number].slice(0, 3) %>"/>
+    <input type="hidden" name="rn_course_degree_level" value="<%= params[:number].slice(4, 1) %>"/>
+    <input type="hidden" name="rn_course" value="<%= params[:number].slice(6, 4) %>"/>
+    <input type="hidden" name="rc_search" value="advanced"/>
+</form>
+<script type="text/javascript">
+    document.getElementById("syl").submit();
+</script>

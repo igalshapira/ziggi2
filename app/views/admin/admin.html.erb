@@ -1,0 +1,81 @@
+<h1>ניהול זיגי</h1>
+<a href="/admin/users/1">משתמשים</a>
+<a href="/admin/events/1">אירועים</a>
+<a href="/admin/logins.csv">Logins</a>
+<a href="/admin/logins_clear">(clear)</a>
+<h2>אוניברסיטאות</h2>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th></th>
+	<th>אוניברסיטה</th>
+	<th>דף הבית</th>
+	<th>מספר משתמשים</th>
+    </tr>
+    <% University.all(:order => 'id').each do |u| %>
+	<tr>
+	    <td><%= u.id %> </td>
+	    <td><a href="/admin/<%=u.id%>"><%= u.name %></a></td>
+	    <td><a href="<%=u.homepage%>"><%= u.homepage %></a></td>
+	    <td><%= User.joins(:semester).where("semesters.university_id" => u.id).count %></td>
+    <% end %>
+    </tr>
+</table>
+
+<h2>משתמשים</h2>
+<ul>
+    <li><a href="/admin/users/1">סה"כ משתמשים: <%= User.count %></a></li>
+    <li>זכרים: <%= User.find_all_by_gender("male").count %></li>
+    <li>נקבות: <%= User.find_all_by_gender("female").count %></li>
+    <li>התחברו בחודש האחרון</li>
+    <li>הצטרפו בחודש האחרון</li>
+</ul>
+
+<h2>קורסים</h2>
+<ul>
+    <li>סה"כ קורסים: <%= Course.count %></li>
+</ul>
+
+<h2>חיפושים</h2>
+<ul>
+    <li>סה"כ חיפושים: <%= Searches.count %></li>
+    <li>חיפושים אחרונים
+    <ul>
+    <% Searches.last(10).each do |s| %>
+	<li><%= s.search %> </li>
+    <% end %>
+    </ul>
+    </li>
+</ul>
+
+<h2>מרצים</h2>
+<ul>
+    <li>סה"כ מרצים: <%= Staff.count %></li>
+    <li>מרצים מדורגים: <%= StaffRank.count('staff_id', :distinct=>true) %> </li>
+    <li>סך הכל דירוגים: <%= StaffRank.count %> </li>
+    <li>סטודנטים שדירגו: <%= StaffRank.count('user_id', :distinct=>true) %> </li>
+</ul>
+
+<h2>שיתופים</h2>
+<ul>
+    <li>סה"כ שיתופים: <%= Share.count %></li>
+</ul>
+
+<h2>חדרים</h2>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th>משתמש</th>
+	<th>שיתוף</th>
+    </tr>
+    <% Share.order(:id).limit(10).each do |s| %>
+	<tr>
+	    <td><%= s.user.name %></td>
+	    <td><a href="<%= user_share_link(s.user, s.share_hash)%>"><%= user_share_link(s.user, s.share_hash)%></a></td>
+	</tr>
+    <% end %>
+</table>
+<ul>
+    <li>סה"כ חדרים: <%= Rooms.count %></li>
+</ul>
+
+<h3>Bad Auths</h3>
+<%= Authorization.find_all_by_user_id(nil).count  %>

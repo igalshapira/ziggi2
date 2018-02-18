@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= content_for?(:title) ? yield(:title) : "זיגי - מערכת השעות שלכם" %></title>
+  <meta charset="utf-8"/>
+  <meta name="Keywords" content="אוניברסיטה,בן גוריון,זיגי,באר שבע,מערכת שעות,לוח בחינות,סטודנטים">
+  <meta name="Description" content="בניית מערכת שעות לסטודנטים, צפייה בלוח בחינות">
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link href="/application.css" media="all" rel="stylesheet" type="text/css" />
+  <link href="/schedule.css" media="all" rel="stylesheet" type="text/css" />
+  <script src="/application.js"></script>
+  <%= csrf_meta_tags %>
+</head>
+<body class="<%= params[:action] %> <%= @user.semester.university.code %>">
+
+<%= yield %>
+</body>
+</html>

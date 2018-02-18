@@ -1,0 +1,45 @@
+<%
+    per_page = 30.0
+    page = params[:page].to_i
+    count = Event.count
+    total_pages = (count / per_page).ceil
+%>
+<h1>כל האירועים</h1>
+עמוד <%= page %>
+מתוך <%= total_pages %>
+<p>
+<%= goto_events_page("עמוד ראשון", 1, total_pages).html_safe %>
+<%= goto_events_page("עמוד קודם", page-1, total_pages).html_safe %>
+<%= goto_events_page("עמוד הבא", page+1, total_pages).html_safe %>
+<%= goto_events_page("עמוד אחרון", total_pages, total_pages).html_safe %>
+
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	    <th></th>
+	    <th></th>
+	    <th>מזהה</th>
+	    <th>משתמש</th>
+	    <th>כותרת</th>
+	    <th>תוכן</th>
+	    <th>מקום</th>
+	    <th>ציבורי</th>
+	    <th>שבועי</th>
+	    <th>קורס</th>
+	    <th>מרצה</th>
+    </tr>
+    <% Event.limit(per_page).offset((page-1)*per_page).order('updated_at desc').each do |e| %>
+    <tr>
+	<td class="get" data="<%= e.id %>">G</td>
+	<td class="set" data="<%= e.id %>"></td>
+	<td><%= e.id %></td>
+	<td><%= e.user.name if e.user %></td>
+	<td><%= e.title %></td>
+	<td><%= e.content %></td>
+	<td><%= e.location %></td>
+	<td><%= e.public %></td>
+	<td><%= e.weekly %></td>
+	<td><%= e.course.name if e.course %></td>
+	<td><%= e.staff.name if e.staff %></td>
+    </tr>
+<% end %>
+</table>

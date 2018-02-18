@@ -1,0 +1,63 @@
+<h1>ניהול זיגי</h1>
+<%
+    uni = University.find(params[:university])
+%>
+<h2><%= uni.name %></h2>
+<h2>סמסטרים</h2>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th></th>
+	<th>פעיל</th>
+	<th>שם</th>
+	<th>התחלה</th>
+	<th>סיום</th>
+	<th>תחילת בחינות</th>
+	<th>סיום בחינות</th>
+	<th>שנה</th>
+	<th>סמסטר</th>
+    </tr>
+    <% Semester.find_all_by_university_id(uni.id, :order => 'start').each do |s| %>
+	<tr>
+	    <td><%= s.id %> </td>
+	    <td><%= s.active %> </td>
+	    <td><%= s.name %> </td>
+	    <td><%= s.start %> </td>
+	    <td><%= s.end %> </td>
+	    <td><%= s.exams_start %> </td>
+	    <td><%= s.exams_end %> </td>
+	    <td><%= s.year %> </td>
+	    <td><%= s.semester %> </td>
+	</tr>
+    <% end %>
+</table>
+
+<h2>עשרה משתמשים אחרונים</h2>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th></th>
+	<th>שם</th>
+	<th>אימייל</th>
+	<th>מגדר</th>
+	<th>נרשם</th>
+	<th>כניסה אחרונה</th>
+    </tr>
+<% User.joins(:semester).where("semesters.university_id" => uni.id).limit(10).order('updated_at desc').each do |u| %>
+	<tr>
+	    <td><%= u.id %> </td>
+	    <td><%= u.name %> </td>
+	    <td><%= u.email %> </td>
+	    <td><%= u.gender %> </td>
+	    <td><%= u.created_at %> </td>
+	    <td><%= u.updated_at %> </td>
+	</tr>
+<% end %>
+</table>
+
+<h2>אירועים</h2>
+<ul>
+    <li>סה"כ אירועים: <%= Event.where(:university_id => uni.id).count %></li>
+    <li>אירועים אישיים: <%= Event.where("university_id = ? AND public = false", uni.id).count %></li>
+    <li>אירועים ציבוריים: <%= Event.where("university_id = ? AND public = true", uni.id).count %></li>
+    <li>אירועים לקורסים: <%= Event.where("university_id = ? AND course_id > 0", uni.id).count %></li>
+    <li>שעות קבלה: <%= Event.where("university_id = ? AND staff_id > 0", uni.id).count %></li>
+</ul>

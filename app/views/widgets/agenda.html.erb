@@ -1,0 +1,35 @@
+<% content_for :title, "סדר יום" %>
+<%
+    dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+    monthNames = ['', 'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+	'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
+%>
+<%
+    date = Date.today
+%>
+<div class="row">
+    <div class="small-7 large-5 large-offset-1 columns">
+	<% for i in 1..7 do %>
+	    <div class="day"><%= dayNames[date.wday] %> <%= date.day.to_s %> ב<%=monthNames[date.month] %>
+	    </div>
+	    <% @agenda[date.wday].each do |a| %>
+	    <div class="group">
+		<div class="hour">
+		    <%= a['hour']['date_start'].strftime('%H:%M') %><br/>
+		    <%= a['hour']['date_end'].strftime('%H:%M') %>
+		</div>
+		<div class="details">
+		    <%= a['course'] %> (<%= a['group']['number']%>)
+		    <%= a['group']['staff']['name'] %>
+		    <%= a['hour']['room'] %>
+		</div>
+	    </div>
+	    <%	    
+		end
+		date = date + 1
+	    end
+	%>
+    </div>
+</div>
+
+<a href="/schedule">מעבר למערכת מלאה</a>

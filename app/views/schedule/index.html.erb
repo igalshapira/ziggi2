@@ -1,0 +1,419 @@
+<script type="text/javascript">
+    <% semesters = available_semesters %>
+    university = { lat: <%= @user.semester.university.lat.to_s %>,
+	lng: <%= @user.semester.university.lng.to_s %>,
+	code: '<%= @user.semester.university.code %>' };
+    <%
+	g_courses = []
+	UserCourse.find_all_by_user_id_and_group(@user.id, 0).each do |c|
+	    next unless c.course and c.course.semester_id == @user.semester_id
+	    cache = course_from_cache(c.course.number)
+	    if cache
+		g_courses.push(cache)
+	    else
+		g_courses.push({ 'number' => c.course.number, 'name' => c.course.name })
+	    end
+	end
+    %>
+    var semester = <%= semesters[:cur].to_json.html_safe %>;
+    var g_courses = <%= g_courses.to_json.html_safe %>;
+    var g_events = <%= all_events().to_json.html_safe %>;
+</script>
+<img src="/assets/ziggi_print_bg.png" id="print-logo" alt="Ziggi"/>
+<div data-layout='{"type": "border", "hgap": 3, "vgap": 3}' class="layout">
+    <div class="center">
+	<div id="summary-info">
+	    לחץ על שם מרצה לדירוג, לחץ על כל פריט בסיכום בשביל לעדכן.
+  </div>
+  <div id="advanced-info">
+    <div id="advancedMenu" class="ui-buttonset">
+      <div id="advancedMenu_Nav">
+        <button style="display: none;" id="asb_prev" onclick="ziggi.getPrevBuildSched();" disabled="true" title="מערכת קודמת (שנשמרה מקודם)" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button" aria-disabled="false">
+
+          <span class="ui-button-text">&lt;</span></button>
+        <button id="asb_cancel" style="display: none;" onclick="ziggi.resetSchedBuild();" title="ביטול" class="ui-button ui-widget ui-state-default ui-button-text-only" role="button" aria-disabled="false">
+          <span class="ui-button-text">ביטול</span></button>
+        <button id="asb_next" style="display: none;" onclick="ziggi.nextBuildSched();" title="מערכת הבאה" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left" role="button" aria-disabled="false">
+          <span class="ui-button-text">&gt;</span></button>
+        &nbsp;&nbsp;
+      </div>
+      <output id="asb_inters" style="display: none"></output>
+      &nbsp;&nbsp;
+      <div id="advancedMenu_Init">
+        <button id="asb_build" onclick="ziggi.buildSched();" title="בנה מערכת" class="ui-button ui-widget ui-state-default ui-button-text-only" role="button" aria-disabled="false">
+          <span class="ui-button-text">בנה מערכת</span></button>
+        &nbsp;&nbsp;
+        <span id="asb_txtInter"><b>&nbsp;מס' חפיפות מקסימלי:</b></span>
+        <input type="text" id="advancedHafifot" size="3" value="0"/>
+      </div>
+      <div id="advancedMenu_Save">
+        <button id="saveSchedFuture" style="display: none;" title="שמור\מחק מערכת נוכחית ל\מהשוואה עתידית" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left" role="button" aria-disabled="false">
+          <span class="ui-button-text">שמור להשוואה</span></button>
+        <button id="saveSchedAlways" style="display: none;" title="שמור מערכת כמערכת לי" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button" aria-disabled="false">
+          <span class="ui-button-text">שמור מערכת</span></button>
+      </div>
+    </div>
+  </div>
+  <div id="monthly-info">
+      תצוגה חודשית של סמסטר <span id="semester-name"></span>
+  </div>
+	<div id="info">
+	    <div id="weekcal_inf">
+	    <span id="points"></span>
+	    <span id="hours"></span>
+    </div>
+
+	    <div id="cal-buttons"></div>
+	    <div id="semester-buttons">
+		<button <% if semesters[:prev] %>
+		    title="<%=
+		    semesters[:prev]['name'] + "<br /> מתחיל ב- " +
+		    semesters[:prev]['start'].to_s + "<br /> מסתיים ב- " +
+		    semesters[:prev]['end'].to_s
+		    %>" onclick="ziggi.selectSemester(<%= semesters[:prev]['id']%>)"
+		    <% else %>
+			<%= disabled="disabled"%>
+		    <%end%>> &lt; </button>
+		<button onclick="return false;" title="<%=
+		@user.semester.name + "<br/> מתחיל ב- " +
+		@user.semester.start.to_s + "<br/> מסתיים ב- " +
+		@user.semester.end.to_s
+		%>"><%= @user.semester.name %></button>
+		<button <% if semesters[:next] %>
+			title="<%=
+		    semesters[:next]['name'] + "<br/> מתחיל ב- " +
+		    semesters[:next]['start'].to_s + "<br/> מסתיים ב- " +
+		    semesters[:next]['end'].to_s
+		    %>" onclick="ziggi.selectSemester(<%= semesters[:next]['id']%>)"
+		    <% else %>
+			<%= disabled="disabled"%>
+		    <%end%>> &gt; </button>
+	    </div>
+	    <div id="save-button"><button disabled="disabled" title="לחץ לשמירת המערכת הנוכחית. המערכת גם נשמרת אוטומטית כל מספר שניות" onclick="ziggi.saveGroups()">שמור מערכת</button></div>
+    <div id="zoom-buttons">
+      <button onclick="ziggi.zoom(1)" title="הגדל מערכת"><span class="ui-icon ui-icon-zoomin"></span></button>
+      <button onclick="ziggi.zoom(-1)" title="הקטן מערכת"><span class="ui-icon ui-icon-zoomout"></span></button>
+  </div>
+	</div>
+    <div id="calendar" class="loading"></div>
+    <script type="text/html" id="event-template">
+	<div class="edit">${title}</div>
+	{{if !isReadOnly}}
+	<span class="ui-icon ui-icon-minus" title="הסר אירוע"></span>
+	{{if weekly}}
+	<span class="weekly_${weekly} ui-icon ui-icon-arrowrefresh-1-s" title="אירוע שבועי, לחץ להפוך לאירוע חד פעמי"></span>
+	{{else}}
+	<span class="weekly_${weekly} ui-icon ui-icon-calculator" title="אירוע חד פעמי, לחץ להפוך לאירוע שבועי"></span>
+	{{/if}}
+	<span class="ui-icon ui-icon-pencil" title="לחץ לעריכת כותרת האירוע"></span>
+	{{if public}}
+	<span class="ui-icon ui-icon-unlocked" title={{if user_id!=<%= @user.id%>}}"אירוע ציבורי" disabled="disabled"{{else}}"אירוע ציבורי, לחץ לשנות את הגדרות פרטיות האירוע"{{/if}}></span>
+	{{else}}
+	<span class="public_${public} ui-icon ui-icon-locked" title="אירוע פרטי, לחץ לשנות את הגדרות פרטיות האירוע"></span>
+	{{/if}}
+	{{/if}}
+    </script>
+    <script type="text/html" id="event-location-template">
+	<span class="edit">${location}</span>
+    </script>
+</div>
+<div class="east">
+    <div id="courses"></div>
+    <script type="text/html" id="courses-tabs-template">
+	<div class="tabs" id="menu-tab">
+	    <ul>
+		<li><a title="רשימת הקורסים" href="#courses-tab"><span class="ui-icon ui-icon-copy"></span></a></li>
+		<li><a title="פרטי הקורסים" href="#course-tab"><span class="ui-icon ui-icon-tag"></span></a></li>
+		<li><a title="לוח שנה סמסטריאלי" href="#mini-cal"><span class="ui-icon ui-icon-calendar"></span></a></li>
+	    </ul>
+	    <div id="courses-tab" class="tabs">
+		<ul>
+		    {{each(i,c) courses}}
+		    <li class="course-name{{if groups}}{{else}} loading{{/if}}" id="${c.number}"><a href="#C${c.number}">${c.name}</a></li>
+		    {{/each}}
+		    <li class="course-name"><a href="#E">אירועים נוספים</a></li>
+		</ul>
+	    </div>
+	    <div id="course-tab">
+		{{each(i,c) courses}}
+		<div id="C${c.number}" class="groups">
+		    <div class="c-info">
+			<span class="c-name">${c.name}</span>
+			<span class="c-number">${c.number}</span>
+		    </div>
+		    <div class="menu">
+			<span class="hours" title="${c.hours} שעות שבועיות">${c.hours} ש"ש</span>
+			<span class="points" title="${c.points} נקודות זכות">${c.points} נ"ז</span>
+			<a href="${c.homepage}" class="ui-accordion-header-icon ui-icon ui-icon-link" target="main" title="דף הבית"/>
+			    <a href="/sylabus/${c.number}" class="ui-accordion-header-icon ui-icon ui-icon-tag" target="main" title="סילבוס"/>	
+				<a href="javascript:ziggi.removeCourse('${c.number}')" class="ui-accordion-header-icon ui-icon ui-icon-trash" title="הסר קורס"/>
+				    <a href="javascript:ziggi.groupSelectAll('${c.number}', true)" class="ui-accordion-header-icon ui-icon ui-icon-plus" title="הוסף את כל הקבוצות"/>
+					<a href="javascript:ziggi.groupSelectAll('${c.number}', false)" class="ui-accordion-header-icon ui-icon ui-icon-minus" title="הסר את כל הקבוצות"/>
+					</div>
+					<ul>
+					    {{each(j,g) c.groups}}
+					    <li class="group-hour ${g.type}{{if g.selected}} selected{{/if}}" data-group="G${g.id}"><div>${g.number} ${g.type} 
+						<span class="staff" title="לחץ לצפייה, עריכת פרטי המרצה ודירוגו" data="${g.staff.id}">${g.staff.name}</span></div>
+					    {{each(k,h) g.hours}}
+					    <div class="ctime" title="${h.room}">
+						${ziggi.timeRange(h.date_start, h.date_end, true)}
+					    </div>
+					    {{/each}}
+					    </li>
+					    {{/each}}
+					</ul>
+					<ul class="exams">
+					    {{each(j,e) c.exams}}
+					    <li id="X${e.id}" data-group="X${e.id}" data-date="${e.date_start}">
+					    מועד ${e.type} ${ziggi.timeRange(e.date_start, null, false)}
+					    </li>
+					    {{/each}}
+					</ul>
+				    </div>
+				    {{/each}}
+				    <div id="E" class="groups">
+					<div class="c-info">
+					    אירועים נוספים
+					</div>
+					<ul id="allEventsL">
+					    {{each(i,e) events}}
+					    {{if (e.public && e.course_id>0) || !e.university_id}}
+					    {{else}}
+					    <li class="event{{if e.selected}} selected{{/if}}" data-group="E${e.id}">
+					    <div class="menu2">
+						<br />
+						<a href='javascript:ziggi.deleteEvent(${e.id});' class='ui-accordion-header-icon ui-icon ui-icon-trashMe' title='הסר אירוע'></a>
+					    </div>
+					    <div>
+						<span class="title">${e.title}<br /></span>
+						<span>
+						    ${ziggi.timeRange(e.date_start, e.date_end, e.weekly)}
+					    </span></div>
+					    </li>
+					    {{/if}}
+					    {{/each}}
+					</ul>
+				    </div>
+				</div>
+				<div id="mini-cal">
+				    <table width="100%" cellpadding="0" cellspacing="0">
+					<thead>
+					    <th>א</th>
+					    <th>ב</th>
+					    <th>ג</th>
+					    <th>ד</th>
+					    <th>ה</th>
+					    <th>ו</th>
+					    <th>ש</th>
+					</thead>
+					<tr>
+					    <td colspan="7" class="month">${longMonths[dates[0].month]}</td>
+					</tr>
+					<tr>
+					    {{each(i,d) dates}}
+					    {{if d.day==1}}
+					</tr>
+					<tr>
+					    <td colspan="7" class="month">${longMonths[d.month]}</td>
+					</tr>
+					<tr>
+					    {{for(w=0;w<i%7;w++)}}
+						<td></td>
+						{{/for}}
+						{{/if}}
+						<td id="mc_${d.day}_${d.month}_${d.year}" class="day {{if today}} today" title="היום{{/if}}">${d.day}</td>
+						{{if i%7 == 6}}</tr><tr>{{/if}}
+						{{/each}}
+					    </tr>
+					</table>
+				    </div>
+				</div>
+			    </script>
+			    <script type="text/html" id="courses-template">
+				{{if !courses.length && !events.length}}
+				<h3>התחל/י כאן (הקלק/י כאן)</h3>
+				<div>
+				    ברוכים הבאים לזיגי!<br/>
+				    עקבו אחרי השלבים על מנת לבנות את המערכת המושלמת.
+				    הקלק על כל כותרת על מנת לקבל עזרה
+				</div>
+				<h3>בחירת אוניברסיטה</h3>
+				<div>
+				    זיגי תומך במספר אוניברסיטאות. לחץ על סמל האוניברסיטה בחלקו הימני העליון של העמוד על מנת להחליף את האוניברסיטה הנבחרת.
+				</div>
+				<h3>בחירת הקורסים</h3>
+				<div>
+				    ניתן למצוא כל קורס על פי השם או המספר המדוייק שלו.
+				    הקלידו בשורת החיפוש את השם או המספר ולחצו על לחצן "חיפוש".
+				    שימו לב שימצאו קורסים הפעילים בסמסטר זה בלבד.
+				</div>
+				<h3>בחירת הקבוצות</h3>
+				<div>
+				    לאחר בחירת הקורסים, הם יופיעו במקום עזרה זו.
+				    עבור כל קורס ניתן לבחור את הקבוצות הרצויות על ידי הקלקה עליהן.
+				</div>
+				<h3>הוספת אירועים נוספים</h3>
+				<div>
+				    ניתן להוסיף אירועים נוספים ידנית.<br/>
+				    מאוד שימושי להוספת שעות קבלה של מרצים, תאריכי הגשת עבודות, פר"ח ועוד.
+				</div>
+				{{/if}}
+			    </script>
+			</div>
+			<div class="north">
+			    <div id="profile">
+				<div class="container">
+				    <div id="main-btns">
+					<%
+					    if @user.semester.active
+						disabled = ""
+						placeholder="חפש קורס לפי שם או מספר"
+					    else
+						disabled="disabled=\"disabled\""
+						placeholder="לא ניתן לחפש עבור סמסטר זה"
+					    end
+					%>
+					<div class="search-form">
+					    <input type=text id="search-value" placeholder="<%=placeholder%>" required <%= disabled %>/>
+					<span id="search-menu">
+					    <button id="search-course" <%= disabled %>>חיפוש</button>
+					  <!--  <button id="recommended-btn" <%= disabled %>>מערכת למחלקה</button>-->
+					</span>
+        </div>
+					<span id="edit-mode">
+					    <a class="selected" id="edit-btn" href="#m=edit" title="עריכת המערכת שלך">שבועי</a>
+					    <a id="super-btn" href="#m=super" title="הצגת כל הקבוצות הקיימות למציאה מהירה של חסמים וחלונות">סופר</a>
+					    <a id="advanced-btn" href="#m=advanced" title="מערכת מתקדמת המאפשרת לסטודנט אפשרויות נוספות">בנאי</a>
+					    <a id="exams-btn" href="#m=calendar" title="תצוגה חודשית של הסמסטר כולל תאריכי בחינות">חודשי</a>
+					    <a id="summary-btn" href="#m=summary" title="סיכום של קורסים, מרצים  ושעות קבלה">סיכום</a>
+					    <a id="map-btn" href="#m=map" title="מפת הקמפוס עם רשימת הבניינים והדגשת הבניינים הרלבנטיים">מפה</a>
+					</span>
+				    </div>
+				    <div id="main_opts_logout">
+					<div class="main-profile-btn">
+					    <div class="profile-btn" id="export-btn"></div>
+					    <ul class="profile-menu" id="export-menu">
+						<li id="print"><a href="javascript:window.print()">הדפסה</a></li>
+						<li id="outlook"><a href="/export/schedule.vcs" target="sched">ייצוא לקובץ VCS (אאוטלוק ואחרים)</a></li>
+						<li id="export-image"><a href="javascript:ziggi.exportImage()">שמור כתמונה</a></li>
+						<li id="gcalendar"><a href="#" data-link="/google_calendar">ייצוא לגוגל קלנדר</a></li>
+						<li id="share-with"><a href="#" data-link="/share_info">שתף מערכת-לינק/פייסבוק/גוגל+</a></li>
+						<li id="w-agenda"><a href="/w/agenda">סדר יום</a></li>
+						<% if not BeerNotification.find_by_user_id(@user[:id]) %>
+						    <!-- <li id="give-beer"><a href="javascript:ziggi.beer()">פרגן בבירה</a></li> -->
+						<% end %>
+					    </ul>
+					</div>
+					<div class="main-profile-btn">
+					    <div class="profile-btn" id="settings-btn"></div>
+					    <ul class="profile-menu" id="settings-menu">
+						<li id="pass-change"><a href="javascript:ziggi.changePassword()">שינוי סיסמא</a></li>
+						<!--
+						<li id="userinfo-change"><a href="javascript:ziggi.showRecommendedFill()">הגדרת פרופיל</a></li>
+						<li id="uni-change"><a href="#">החלף אוניברסיטה</a>
+						<ul class="profile-menu" id="uni-menu">
+						    <% University.all.each do |u| %>
+							<% next if u.status == 0 %>
+							<li class="<%=u[:code]%>"><a href="/university/<%=u[:id].to_s%>"><%=u[:name]%></a></li>
+						    <% end %>
+						</ul>
+						</li>
+						-->
+					    </ul>
+					</div>
+                    <div class="main-profile-btn" style="position:absolute; left: 0;">
+						<a id="logout" href="/logout">יציאה</a>
+				    </div>
+				    </div>
+				</div>
+			    </div>
+			</div>
+			<div class="south">
+			    <div class="container">
+				<div id="footer">
+				    <span>ziggi.co © 2013</span>
+				    <a data-link="/about" href="#">אודות</a>
+				    <a data-link="/help" href="#">עזרה</a>
+				    <a data-link="/privacy" href="#">הצהרת פרטיות</a>
+				    <a data-link="/eula" href="#">תנאי שימוש באתר</a>
+				    <a data-link="/faq" href="#">תשובות לשאלות נפוצות</a>
+				    <a data-link="/wanted" href="#">דרושים</a>
+				    <a href="mailto:igal.shapira@gmail.com">צור קשר</a>
+				</div>
+			    </div>
+			</div>
+		    </div>
+		    <div id="results-dialog" title="Search Results">
+			<div></div>
+		    </div>
+		    <div id="static-dialog" title="Search Results">
+			<div></div>
+		    </div>
+		    <div id="staff-dialog" title="">
+			<div>
+			    <div>
+				<div id="image"></div>
+				<div id="staff-info">
+				    <div><label for="email">דואר אלקטרוני:</label> <span id="email"></span> </div>
+				    <div><label for="phone">טלפון:</label> <span id="phone"></span> </div>
+				    <div><label for="room">חדר:</label> <span id="room"></span> </div>
+				    <div><label for="reception">שעות קבלה:</label><span id="reception"></span></div>
+				</div>
+				<div id="update">הקלק על כל פריט מידע על מנת לעדכן אותו.</div>
+				<div id="updated">עודכן לאחרונה ב:<span id="updated_at"></span> על ידי <span id="updated_by"></span></div>
+			    </div>
+			    <h3>דירוג המרצה</h3>
+			    <div id="rank-wrap"></div>
+			    <script type="text/html" id="rank-template">
+				{{if sums[5] > 0}}
+				<div id="rank-sum"><p id="avg-title">ממוצע</p><p id="avg">${avg}</p><p id="avg-total">${sums[5]}</p></div>
+				<div title="${rank[1]} אנשים הצביעו כוכב אחד<br/>${rank[2]} אנשים הצביעו שני כוכבים<br/>${rank[3]} אנשים הצביעו שלושה כוכבים<br/>${rank[4]} אנשים הצביעו ארבעה כוכבים<br/>${rank[5]} אנשים הצביעו חמישה כוכבים" id="rank-grad" style="background: linear-gradient(to left, #FF6F31 ${parseInt(sums[1]/sums[5]*100)}%, #FF9F02 ${parseInt(sums[2]/sums[5]*100)}%, #FFCF02 ${parseInt(sums[3]/sums[5]*100)}%, #A4CC02 ${parseInt(sums[4]/sums[5]*100)}%, #88B131 100%"></div>
+				<div id="rank-comments">
+				    <div class="comments">
+					{{each(i,c) comments}}
+					<div class="comment">
+					    <span class="user">${c.user}</span> 
+					    <span class="date">${$.datepicker.formatDate('d/mm/yy', new Date(c.date))}</span>
+					    <span class="rank" style="width: ${13 * c.rank}px"></span>
+					    <div>${c.comment}</div>
+					</div>
+					{{if i%3 == 2 && i < comments.length}}
+				    </div>
+				    <div id="more-comments"><a href="#" onclick="return ziggi.showMore(this)">הראה עוד תגובות</a></div>
+				    <div class="comments" style="display:none">
+					{{/if}}
+					{{/each}}
+				    </div>
+				</div>
+				{{else}}
+				<div id="no-ranking">
+				    איש הסגל עוד לא דורג. היה הראשון לדרג אותו!
+				</div>
+				{{/if}}
+				<h4>הדירוג שלך</h4>
+				<input type="range" min="0" max="5" value="${user_rank.rank}" step="1" id="user-ranking">
+				<div class="rateit" data-rateit-backingfld="#user-ranking"></div>
+				<div>
+				    <textarea tabindex="-1" maxlength=255 rows=3 id="user-rank-comment">${user_rank.comment}</textarea>
+				</div>
+				<button tabindex="-1" onclick="ziggi.sendRank(${id})">שלח דירוג</button>
+			    </script>
+			</div>
+		    </div>
+		    <ul id="week-menu">
+			<li id="week-menu-day"></li>
+			<li id="add-event"><a href="#">הוספת אירוע</a></li>
+			<% if @unilib.respond_to?('find_sport') %>
+			    <li id="search-free-hour"><a href="#">חפש קורס ספורט בשעה זו</a></li>
+			<% end %>
+		    </ul>
+		    <ul id="event-menu">
+			<li><a href="#" id="event-menu-private">אירוע אישי - מוצג לך בלבד</a></li>
+			<li><a href="#" id="event-menu-public">אירוע ציבורי - זמין לכולם דרך החיפוש</a></li>
+			<!--
+			<li><a href="#" id="event-menu-course">שיוך לקורס - האירוע זמין לכל  הרשומים לקורס</a>
+			</li>
+			<li><a href="#" id="event-menu-staff">שעות קבלה של מרצה - זמין לכל הרשומים לקורס</a>
+			-->
+		    </ul>
+		    <%= google_analytics 'UA-37311958-1' %>

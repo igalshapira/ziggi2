@@ -1,0 +1,16 @@
+<% content_for :title, "לוח חודשי" %>
+<%
+    dayNames = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
+    monthNames = ['', 'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+	'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
+%>
+<%
+    date = Date.today
+%>
+<div class="row calendar">
+    <% for i in 0..6 do %>
+	<div class="small-1 large-1 columns day-name"><%= dayNames[i] %> </div>
+   <% end %>
+</div>
+
+<a href="/schedule">מעבר למערכת מלאה</a>

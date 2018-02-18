@@ -1,0 +1,14 @@
+<h2>מרצים</h2>
+<ul>
+    <li>סה"כ מרצים: <%= Staff.count %></li>
+    <li>מרצים מדורגים: <%= StaffRank.count('staff_id', :distinct=>true) %> </li>
+    <li>סך הכל דירוגים: <%= StaffRank.count %> </li>
+    <li>סטודנטים שדירגו: <%= StaffRank.count('user_id', :distinct=>true) %> </li>
+</ul>
+<% StaffRank.all(:order => 'id').each do |u| %>
+    <%= u.inspect %>
+<% end %>
+
+<% Staff.all(:order => 'id').each do |u| %>
+    <%= u.inspect %>
+<% end %>

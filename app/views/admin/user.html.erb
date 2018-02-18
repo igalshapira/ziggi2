@@ -1,0 +1,91 @@
+<%
+    u = User.find_by_id(params[:user])
+    u = User.find_by_email(params[:user]) if not u
+%>
+<h2><%= u.email + " - " + u.name %></h2>
+<ul>
+    <li>מגדר - <%= u.gender %></li>
+    <li>הצטרף ב - <%= u.created_at %></li>
+    <li>עודכן ב - <%= u.updated_at %></li>
+    <li>סמסטר - <%= u.semester_id.to_s %></li>
+</ul>
+
+<h3>Authorizations</h3>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th>Provider</th>
+	<th>uid</th>
+	<th>created_at</th>
+	<th>updated_at</th>
+    </tr>
+    <% Authorization.find_all_by_user_id(u.id).each do |a| %>
+	<tr>
+	    <td><%= a.provider %> </td>
+	    <td><%= a.uid %> </td>
+	    <td><%= a.created_at %> </td>
+	    <td><%= a.updated_at %> </td>
+	</tr>
+    <% end %>
+</table>
+
+<h3>Beer</h3>
+<table cellspacing="0" cellpadding="2" border="1">
+    <tr style="background-color: #aaaaaa;">
+	<th>Date</th>
+	<th>Status</th>
+	<th>Ack</th>
+	<th>Params</th>
+    </tr>
+<% BeerNotification.find_all_by_user_id(u.id).each do |b| %>
+    <tr>
+	<td><%= b.created_at %></td>
+	<td><%= b.status %></td>
+	<td><%= b.ack %></td>
+	<td><%= b.params %></td>
+    </tr>
+<% end %>
+<tr>
+    <td><button onclick="add_beer()">Add</button></td>
+</table>
+
+<h3>Reset password</h3>
+<button onclick="reset()">Reset Password</button>
+<script type="text/javascript">
+function reset() {
+    pass = prompt("New password");
+    if (!pass || pass.length < 4) return;
+    window.location.href = "/admin/reset/<%= u.id %>/" + pass;
+}
+
+function add_beer() {
+    window.location.href = "/admin/send_beer/<%= u.id %>";
+}
+</script>
+
+<h3>Logins</h3>
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th>Provider</th>
+	<th>ip</th>
+	<th>browser</th>
+	<th>created_at</th>
+    </tr>
+    <% Logins.find_all_by_user_id(u.id).each do |l| %>
+	<tr>
+	    <td><%= l.provider %> </td>
+	    <td><%= l.ip %> </td>
+	    <td><%= l.browser %> </td>
+	    <td><%= l.created_at %> </td>
+	</tr>
+    <% end %>
+</table>
+<h3>Courses</h3>
+<%
+    json = []
+
+    UserCourse.find_all_by_user_id_and_group(u.id, 0).each do |c|
+	next unless c.course and c.course.semester_id == u.semester_id
+	json.push({ 'number' => c.course.number, 'name' => c.course.name })
+    end
+%>
+<%= JSON.dump(json) %>

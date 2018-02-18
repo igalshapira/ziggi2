@@ -1,0 +1,28 @@
+// Place all the styles related to the widgets controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+div.day {
+    background: url("jui/ui-bg_glass_85_dfeffc_1x400.png") repeat-x scroll 50% 50% #DFEFFC;
+    border-bottom: 1px solid #79B7E7;
+    margin-top: 8px;
+    clear: both;
+}
+
+div.group {
+    clear: both;
+}
+
+div.hour {
+    float: right;
+    border-left: 1px solid black;
+    padding: 2px 6px;
+    margin: 2px;
+}
+
+div.day-name {
+    background: url("jui/ui-bg_glass_85_dfeffc_1x400.png") repeat-x scroll 50% 50% #DFEFFC;
+}
+
+div.calendar div {
+}

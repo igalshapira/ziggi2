@@ -1,0 +1,118 @@
+<nav class="top-bar show-for-medium-up" data-topbar>
+  <section class="top-bar-section">
+<ul class="right">
+    <li>
+    <a href="https://play.google.com/store/apps/details?id=com.yohana.ea.ziggi" onClick="trackOutboundLink(this, 'Outbound Links', 'Android Market'); return false;">
+	<img style="{border:none}" alt="הורד את אפליקצית זיגי לאנדרואיד"
+	src="https://developer.android.com/images/brand/en_generic_rgb_wo_45.png" />
+    </a>
+    </li>
+</ul>
+</section>
+</nav>
+<div class="row full-width">
+    <div class="small-7 large-3 large-offset-2 columns">
+	<div class="show-for-medium-up" id="pad-connect"></div>
+	    <div class="panel" id="connect">
+		<h1>התחבר לזיגי</h1>
+		<div class="social">
+		    <div class="fb-connect">
+			<%= link_to "התחבר באמצעות פייסבוק", "/auth/facebook" %>
+		    </div>
+		    <div class="google-connect">
+			<%= link_to "התחבר באמצעות גוגל", "/auth/google_oauth2" %>
+		    </div>
+		</div>
+		<div class="panel" id="ziggi-connect">
+		    <form data-abide="ajax" id="login-form">
+			<div class="row">
+			    <div class="small-4 columns">
+				<input type="email" id="email" required placeholder="דואר אלקטרוני"/>
+				<small class="error">הכנס כתובת דואר אלקטרוני תקינה</small>
+				<input type="password" required id="password" placeholder="סיסמא"/>
+				<small class="error">סיסמא צריכה להיות באורך שלושה תווים לפחות</small>
+			    </div>
+			    <div class="small-3 columns">
+				<button type="submit" id="login">התחבר<br/>או<br/>הרשם</button>
+			    </div>
+			</div>
+			<div class="row">
+			    <div class="right">
+				<input type="checkbox" name="remember_me" id="remember_me" /><label for="remember_me">זכור אותי על מחשב זה</label>
+			    </div>
+			    <div class="left">
+				<a data-reveal-id="forgot-dlg" data-reveal href="#">שכחתי סיסמא</a>
+			    </div>
+			</div>
+			<div class="row">
+			    להרשמה ראשונה מלא כתובת דואר אלקטרוני וסיסמא ולחץ על הכפתור
+			</div>
+		    </form>
+		</div>
+	    </div>
+    </div>
+</div>
+<div class="row full-width">
+    <div class="small-7 large-5 large-offset-1 columns">
+	<div class="show-for-medium-up" id="pad-info"></div>
+	<div class="panel">
+	    <h3>מה זה זיגי?</h3>
+	    <p>
+	    האתר נועד לעזור לסטודנטים לבנות מערכת שעות בדרך הפשוטה ביותר והמהירה ביותר.
+	    <br/>
+	    האתר <strong>לא</strong> רושם במערכת ההרשמה של האוניברסיטה, אלא משמש אך ורק לעזרה לפני ההרשמה
+	    </p>
+	    <p><strong>
+		על מנת להסיר ספק, אין קשר בין אתר זה ובין האוניברסיטאות. 
+	    </strong> </p>
+	</div>
+    </div>
+</div>
+
+<footer class="row full-width">
+<div class="small-7 large-5 large-offset-1 columns">
+    <span>ziggi.co © 2006-2014</span>
+    <a href="/privacy">הצהרת פרטיות</a>
+    <a href="/eula">תנאי שימוש באתר</a>
+    <a href="mailto:igal.shapira@gmail.com">צור קשר</a>
+</div>
+</footer>
+<div id="error-login-dlg" class="reveal-modal tiny" data-reveal>
+    <h3>שם המשתמש או הסיסמא אינם נכונים </h3>
+    <p>
+    וודא שהקלדת במדוייק את הכתובת ואת הסיסמא<br/>
+    במידה והתחברות הראשונה הייתה באמצעות פייסבוק או גוגל, יש להתחבר באמצעותם שוב ולעדכן סיסמא בתפריט הגדרות.
+    </p>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="signup-dlg" class="reveal-modal tiny" data-reveal>
+    <h3>הרשמה לזיגי</h3>האם ברצונך להרשם עם שם המשתמש <span id="login-email"></span>?
+    <a class="close-reveal-modal">&#215;</a>
+    <form id="signup-form" data-abide="ajax">
+	<input type="hidden" id="signup-dummy"/>
+	<button type="submit">הירשם לזיגי</button>
+    </form>
+</div>
+
+<div id="forgot-dlg" class="reveal-modal tiny" data-reveal>
+    <h2>שכחת סיסמא?</h2>
+    <form id="forgot-form" data-abide="ajax">
+	<p>לקבלת מייל לאיפוס סיסמא, מלא את כתובת המייל איתה נרשמת לזיגי:</p>
+	<div class="row">
+	<input type="email" id="recover-email" required placeholder="דואר אלקטרוני"/>
+	<small class="error">הכנס כתובת דואר אלקטרוני תקינה</small>
+    </div>
+	<div class="row">
+	<button type="submit">אפס סיסמא</button>
+    </div>
+    </form>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<div id="answer-dlg" class="reveal-modal tiny" data-reveal>
+    <div></div>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<%= google_analytics 'UA-37311958-1' %>

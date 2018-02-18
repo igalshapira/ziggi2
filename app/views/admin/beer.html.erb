@@ -1,0 +1,17 @@
+<table cellspacing="0" cellpadding="2" border="1">
+    <tr style="background-color: #aaaaaa;">
+	<th>User</th>
+	<th>Date</th>
+	<th>Status</th>
+	<th>Ack</th>
+	<th>Params</th>
+    </tr>
+<% BeerNotification.all().each do |b| %>
+    <tr>
+	<td><a href="/admin/user/<%= b.user_id %>"><%= b.user.name if b.user %></a></td>
+	<td><%= b.created_at %></td>
+	<td><%= b.status %></td>
+	<td><%= b.ack %></td>
+	<td><%= b.params %></td>
+    </tr>
+<% end %>

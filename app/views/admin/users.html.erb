@@ -1,0 +1,47 @@
+<%
+    per_page = 30.0
+    page = params[:page].to_i
+    count = User.count
+    total_pages = (count / per_page).ceil
+%>
+<h1>כל המשתמשים</h1>
+עמוד <%= page %>
+מתוך <%= total_pages %>
+<p>
+<%= goto_users_page("עמוד ראשון", 1, total_pages).html_safe %>
+<%= goto_users_page("עמוד קודם", page-1, total_pages).html_safe %>
+<%= goto_users_page("עמוד הבא", page+1, total_pages).html_safe %>
+<%= goto_users_page("עמוד אחרון", total_pages, total_pages).html_safe %>
+
+<table border=1 cellspacing=0 cellpadding=2>
+    <tr style="background-color: #aaaaaa;">
+	<th></th>
+	<th>שם</th>
+	<th>אימייל</th>
+	<th>מגדר</th>
+	<th>הרשמות</th>
+	<th>נרשם</th>
+	<th>כניסה אחרונה</th>
+	<th>שיתוף</th>
+    </tr>
+<% User.includes(:share).joins(:semester).limit(per_page).offset((page-1)*per_page).order('email').each do |u| %>
+	<tr>
+	    <td><%= u.id %> </td>
+	    <td><a href="/admin/user/<%=u.id%>"><%= u.name %></a></td>
+	    <td><%= u.email %> </td>
+	    <td><%= u.gender %> </td>
+	    <td>
+		<%
+		    Authorization.find_all_by_user_id(u[:id]).each do  |a|
+		%>
+		<%= a[:provider] %><br/>
+		<%
+		    end
+		%>
+	    </td>
+	    <td><%= u.created_at %> </td>
+	    <td><%= u.updated_at %> </td>
+	    <td><a href="<%= user_share_link(u, u.share.share_hash) if u.share %>"><%= u.share.share_hash if u.share %></a></td>
+	</tr>
+<% end %>
+</table>

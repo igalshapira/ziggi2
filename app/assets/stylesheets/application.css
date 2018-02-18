@@ -1,0 +1,64 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require_self
+ *= require jquery-ui-1.9.2.custom.min.css
+ *= require jquery.weekcalendar.css
+ *= require rateit.css
+ *= require jquery.jgrowl.min.css
+ */
+body {
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    background: #fbf8fa;
+}
+
+div#login {
+    float: left;
+    height: 48px;
+    line-height: 48px;
+    margin: 0 16px;
+}
+
+div#login a {
+    text-decoration: none;
+    color: white;
+}
+
+div#login a:hover {
+    color: black;
+}
+
+footer, div#footer {
+    margin: 0 auto;
+    padding: 8px 0;
+    border-top: 1px solid #aaaaaa;
+    color: #80abc1;
+    background: #fbf8fa;
+}
+
+footer span, div#footer span {
+    padding: 0 8px;
+}
+
+footer a, div#footer a {
+    text-decoration: none;
+    color: #80ABC1;
+    border-right: 1px solid #80ABC1;
+    padding: 0 8px;
+}
+
+footer a:hover, div#footer a:hover {
+    text-decoration: underline;
+}
+

@@ -1,0 +1,96 @@
+// Place all the styles related to the home controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+body {
+  background-color: #b5cfdc;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.top-bar {
+    height: auto;
+}
+
+.row.full-width {
+    width: 100%;
+    max-width: 100%;
+}
+
+h1 {
+    color: #525252;
+    font-size: 1.5em;
+}
+
+div#pad-connect {
+  margin: 90px auto;
+}
+
+div#pad-info {
+    margin: 40px auto;
+}
+
+div#connect {
+  margin: 10px auto;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0,0, 0.45);
+}
+
+div#connect div.social div {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+div#connect div.social {
+    border-bottom: 1px solid #d8d8d8;
+}
+
+div.fb-connect a,
+div.google-connect a {
+  height: 44px;
+  text-decoration: none;
+  color: white;
+  font-size: 24px;
+  line-height: 34px;
+  border: 1px solid black;
+  border-radius: 2px 2px 2px 2px;
+  padding: 4px 8px 4px 48px;
+  display: block;
+}
+
+div.fb-connect a:hover,
+div.fb-connect a:focus,
+div.google-connect a:hover,
+div.google-connect a:focus {
+  box-shadow: 0px 5px 5px #888888;
+}
+
+div.fb-connect a {
+  background: url(/assets/connect_with.png) no-repeat left 0 #5F78AB;
+}
+
+div.google-connect a {
+  background: url(/assets/connect_with.png) no-repeat left -45px #464646;
+}
+
+div#connect input {
+  font-size: 1.1em;
+}
+
+@media only screen and (max-width: 640px) {
+
+div.fb-connect a,
+div.google-connect a {
+  font-size: 16px;
+}
+
+}
+
+/* Foundation */
+.top-bar-section ul {
+    background-color: transparent;
+}
+
+div.nav-bar {
+    box-shadow: 0 5px 5px #888888;
+}
+
+/* Foundation End */

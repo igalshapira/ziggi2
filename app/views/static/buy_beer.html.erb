@@ -1,0 +1,37 @@
+<p>
+אתר זיגי עוזר לסטודנטים מאז שנת 2006.<br/>
+תחזוק האתר דורש זמן, מאמץ וכסף.  <br/>
+אז פרגנו לזיגי על מנת שנוכל לשמור על האתר גם בשנים הבאות.<br/>
+</p>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_xclick">
+<input type="hidden" name="business" value="7NMTPSSCH6PR2">
+<input type="hidden" name="lc" value="IL">
+<input type="hidden" name="button_subtype" value="services">
+<input type="hidden" name="currency_code" value="ILS">
+<input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynow_LG.gif:NonHosted">
+<input name="notify_url" value="http://www.ziggi.co/beer_notify/<%=session[:user_id]%>/" type="hidden">
+<input type="hidden" name="no_shipping" value="1">
+<input type="hidden" name="no_note" value="1">
+<input type="hidden" name="image_url" value="http://www.ziggi.co/assets/ziggi_print_bg.png">
+<input type="hidden" name="return" value="http://www.ziggi.co/schedule">
+<input type="hidden" name="item_name" value="Ziggi.co">
+<!--<input type="hidden" name="page_style" value="ziggi">-->
+<table>
+<tr><td><input type="hidden" name="on0" value="הזמן את זיגי לבירה">הזמן את זיגי לבירה</td></tr><tr><td><select name="os0">
+	<option value="חצי ליטר">חצי ליטר 27.00 ש"ח</option>
+	<option value="שליש">שליש 20.00 ש"ח</option>
+	<option value="צייסר">צ'ייסר 10.00 ש"ח</option>
+</select> </td></tr>
+</table>
+<input type="hidden" name="option_select0" value="חצי ליטר">
+<input type="hidden" name="option_amount0" value="27.00">
+<input type="hidden" name="option_select1" value="שליש">
+<input type="hidden" name="option_amount1" value="20.00">
+<input type="hidden" name="option_select2" value="צייסר">
+<input type="hidden" name="option_amount2" value="10.00">
+<input type="hidden" name="option_index" value="0">
+<input type="image" src="https://www.paypalobjects.com/he_IL/i/btn/btn_buynow_LG.gif" border="0" name="submit" alt="PayPal - הדרך הקלה והבטוחה לשלם באינטרנט!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+

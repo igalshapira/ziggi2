@@ -1,0 +1,16 @@
+﻿<% if not request.xhr? %>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>זיגי</title>
+  <meta charset="utf-8"/>
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<% end %>
+<%= yield %>
+<% if not request.xhr? %>
+</body>
+</html>
+<% end %>
