@@ -19,7 +19,7 @@ Ziggi was orignally deployed to [Heroku](http://www.heroku.com) and later on it 
 
 ## Deploying
 
-For using some of the advanced features you need to set several variables. See (config/application.rb)[config/application.rb]
+For using some of the advanced features you need to set several variables. See [config/application.rb](config/application.rb)
 
 * GOOGLE_USER and GOOGLE_KEY to allow login with google
 * FACEBOOK_USER and FACEBOOK_KEY to allow login with facebook
